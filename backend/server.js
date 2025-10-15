@@ -3,14 +3,14 @@ import http from 'http';
 import { Server } from 'socket.io';
 import cors from 'cors';
 import dotenv from 'dotenv';
+import connectDB from './utils/db.js';
 
-// Load environment variables
+connectDB();
 dotenv.config();
 
 const app = express();
 const server = http.createServer(app);
 
-// Socket.io setup
 const io = new Server(server, {
   cors: {
     origin: process.env.FRONTEND_URL || 'http://localhost:5173',
@@ -18,7 +18,6 @@ const io = new Server(server, {
   }
 });
 
-// Middleware
 app.use(cors({
   origin: process.env.FRONTEND_URL || 'http://localhost:5173',
   credentials: true
@@ -26,7 +25,6 @@ app.use(cors({
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// Test route
 app.get('/', (req, res) => {
   res.json({
     message: '🚀 Echo API is running!',
@@ -35,12 +33,10 @@ app.get('/', (req, res) => {
   });
 });
 
-// Health check route for uptime monitoring
 app.get('/health', (req, res) => {
   res.json({ status: 'ok' });
 });
 
-// Socket.io connection logic
 io.on('connection', (socket) => {
   console.log('✅ User connected:', socket.id);
 
@@ -49,7 +45,6 @@ io.on('connection', (socket) => {
   });
 });
 
-// Generic error handling middleware
 app.use((err, req, res, next) => {
   console.error(err.stack);
   res.status(500).json({
@@ -58,7 +53,6 @@ app.use((err, req, res, next) => {
   });
 });
 
-// Start server
 const PORT = process.env.PORT || 5000;
 server.listen(PORT, () => {
   console.log(`🚀 Echo server running on port ${PORT}`);
