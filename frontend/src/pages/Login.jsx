@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import api from '../services/api';
+import { useAuth } from '../context/AuthContext';
 
 function Login() {
   const [formData, setFormData] = useState({
@@ -8,6 +8,7 @@ function Login() {
     password: '',
   });
   const [error, setError] = useState('');
+  const { login } = useAuth();
   const navigate = useNavigate();
 
   const { email, password } = formData;
@@ -19,28 +20,21 @@ function Login() {
     e.preventDefault();
     setError('');
     try {
-      const res = await api.post('/auth/login', { email, password });
-
-      console.log('Login successful:', res.data);
-      localStorage.setItem('token', response.data.token);
-      console.log('Token saved to Local Storage:', response.data.token);
-      alert('Login successful! Token is in the console.');
+      await login(email, password);
       navigate('/');
     } catch (err) {
-      console.error('Login error:', err.response?.data);
       const errorMsg = err.response?.data?.errors?.[0]?.msg || 'Invalid credentials';
       setError(errorMsg);
     }
   };
-
- 
+  
+  
 
   return (
     <div className="min-h-screen bg-gray-900 text-white flex items-center justify-center p-4">
       <div className="w-full max-w-md">
         <div className="text-center mb-8">
           <div className="flex justify-center mb-4">
-            
           </div>
           <h2 className="text-2xl md:text-3xl font-bold">Sign in to your account</h2>
         </div>
@@ -98,8 +92,9 @@ function Login() {
                 </a>
               </div>
             </div>
-
-            <div>
+            
+            <div className='relative'>
+                <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-72 h-32 bg-indigo-600 rounded-full filter blur-3xl opacity-60"></div>
               <button
                 type="submit"
                 className="w-full flex justify-center py-3 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-800 focus:ring-indigo-500"
